@@ -1,6 +1,7 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { ApplicationCommandType, Message } from 'discord.js';
+import type { GuildMessage } from '../lib/types/discord';
 
 @ApplyOptions<Command.Options>({
 	description: 'ping pong'
@@ -28,7 +29,7 @@ export class UserCommand extends Command {
 	}
 
 	// Message command
-	public override async messageRun(message: Message) {
+	public override async messageRun(message: GuildMessage) {
 		return this.sendPing(message);
 	}
 
@@ -42,7 +43,7 @@ export class UserCommand extends Command {
 		return this.sendPing(interaction);
 	}
 
-	private async sendPing(interactionOrMessage: Message | Command.ChatInputCommandInteraction | Command.ContextMenuCommandInteraction) {
+	private async sendPing(interactionOrMessage: GuildMessage | Command.ChatInputCommandInteraction | Command.ContextMenuCommandInteraction) {
 		const pingMessage =
 			interactionOrMessage instanceof Message
 				? await interactionOrMessage.channel.send({ content: 'Ping?' })
