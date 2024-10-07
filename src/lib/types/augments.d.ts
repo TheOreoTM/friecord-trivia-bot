@@ -5,3 +5,11 @@ declare module '@sapphire/pieces' {
 		db: PrismaClient;
 	}
 }
+
+declare module '@sapphire/framework' {
+	interface Preconditions {
+		Everyone: never;
+		Host: never;
+		QuizMaster: never;
+	}
+}
