@@ -3,3 +3,8 @@ export const enum PermissionLevels {
 	Host = 5,
 	QuizMaster = 6
 }
+
+export const enum QuestionStatus {
+	InProgress = 'IN_PROGRESS',
+	Over = 'OVER'
+}

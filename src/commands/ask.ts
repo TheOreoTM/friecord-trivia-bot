@@ -1,8 +1,8 @@
 import { ApplyOptions } from '@sapphire/decorators';
-import { EmbedBuilder } from 'discord.js';
+import { EmbedBuilder, type Snowflake } from 'discord.js';
 import { CustomColors } from '../lib/constants';
 import { FrierenCommand } from '../lib/FrierenCommand';
-import { PermissionLevels } from '../lib/types/enums';
+import { PermissionLevels, QuestionStatus } from '../lib/types/enums';
 import { Duration, DurationFormatter } from '@sapphire/time-utilities';
 
 @ApplyOptions<FrierenCommand.Options>({
@@ -85,7 +85,7 @@ export class UserCommand extends FrierenCommand {
 			embeds: [embed]
 		});
 
-		this.container.db.question.create({
+		const questionData = await this.container.db.question.create({
 			data: {
 				question,
 				messageId: questionMessage.id,
@@ -107,8 +107,33 @@ export class UserCommand extends FrierenCommand {
 				}
 
 				answers = answers.filter((message) => message.editedTimestamp === null);
+				answers = answers.sort((a, b) => a.createdTimestamp - b.createdTimestamp);
+				const answerMap = new Map<Snowflake, string>();
 
-				interaction.channel?.send(`Times up! lock channel i guess \n${answers.size} answers found`);
+				answers.forEach((answer) => {
+					answerMap.set(answer.author.id, answer.content);
+				});
+
+				answerMap.forEach(async (id, answer) => {
+					await this.container.db.answer.create({
+						data: {
+							answer,
+							userId: id,
+							questionId: questionData.id
+						}
+					});
+				});
+
+				interaction.channel?.send(`Times up! lock channel i guess \n${answers.size} answers (${answerMap.size} unique answers) found`);
+
+				await this.container.db.question.update({
+					where: {
+						id: questionData.id
+					},
+					data: {
+						status: QuestionStatus.Over
+					}
+				});
 			}, duration);
 			return;
 		}

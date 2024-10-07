@@ -13,6 +13,7 @@ datasource db {
 model Question {
     id             Int      @id @default(autoincrement())
     question       String
+    status         String   @default("IN_PROGRESS") // "IN_PROGRESS" | "OVER"
     messageId      String
     channelId      String
     firstFiveBonus Int      @default(2)
@@ -28,6 +29,6 @@ model Answer {
     answer     String
     createdAt  DateTime  @default(now())
     updatedAt  DateTime  @updatedAt
-    Question   Question? @relation(fields: [questionId], references: [id])
+    question   Question? @relation(fields: [questionId], references: [id])
     questionId Int?
 }
