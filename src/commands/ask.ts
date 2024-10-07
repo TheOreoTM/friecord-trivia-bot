@@ -54,6 +54,16 @@ export class UserCommand extends FrierenCommand {
 
 	// Chat Input (slash) command
 	public override async chatInputRun(interaction: FrierenCommand.ChatInputCommandInteraction) {
+		const activeQuestions = await this.container.db.question.findMany({
+			where: {
+				status: QuestionStatus.InProgress
+			}
+		});
+
+		if (activeQuestions.length > 0) {
+			return this.error('There is already an active question');
+		}
+
 		await interaction.deferReply({ ephemeral: true });
 
 		const bonus = interaction.options.getInteger('bonus', false) ?? 2;
